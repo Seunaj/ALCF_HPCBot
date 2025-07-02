@@ -1,0 +1,11 @@
+{
+  "b52e9051-b74d-4b23-b319-0d5053eec9a8": {
+    "1": "Excellent: suitable for production or training data",
+    "2": "Poor: likely unusable without substantial revision",
+    "3": "Fair: noticeable issues; needs review or revision"
+  },
+  "9e1112ce-e5e6-44ee-a4fc-21f60d245b6e": {
+    "1": "Good: minor issues that can be fixed easily",
+    "500": "Fair: noticeable issues; needs review or revision"
+  }
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Question {{ question.id }}</title>
+  <style>
+    /* Body container styling */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    /* Updated banner styling */
+    .banner {
+      position: fixed; /* Makes the banner stick to the top */
+      width: 100%; /* Ensures it covers the full width */
+      top: 0; /* Stays at the very top */
+      z-index: 1000; /* Keeps it above other elements */
+      background: linear-gradient(135deg, #0077b6, #00b4d8); /* Gradient background */
+      color: #fff;
+      text-align: center;
+      padding: 20px 10px; /* Balanced padding */
+    }
+
+    .banner h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    @media (max-width: 600px) {
+      .banner h1 {
+        font-size: 2rem; /* Adjust font size for smaller screens */
+      }
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 120px auto 20px; /* Adds margin to prevent overlap with the fixed banner */
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    /* Styling for the options div */
+    #options {
+      padding: 15px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #ececec, #f7f7f7);
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #options .option {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      padding: 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #options .option:hover {
+      background: #f0f5ff;
+      border-color: #80bfff;
+    }
+
+    #options .option.selected {
+      background-color: #ddf4ff;
+      color: #0056b3;
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.75);
+    }
+
+    /* Progress bar styling */
+    .progress-bar {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <!-- Banner appears fixed at the top with full width -->
+  <div class="banner">
+    <h1>Evaluate ALCF QAs</h1>
+  </div>
+
+  <div class="container">
+    <h2>QA pair ({{ question.id }} of {{ total }})</h2>
+    <p><b>Question: </b>{{ question.question }}</p>
+    <p><b>Answer: </b>{{ question.answer }}</p>
+    <b>Reference: </b> <a href="{{ question.source }}">{{ question.source }}</a>
+    <p></p>
+
+    <div id="options">
+      {% for option in question.options %}
+        <div class="option{% if selected == option %} selected{% endif %}"
+             onclick="selectOption('{{ option }}')">
+          {{ option }}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar">You have completed {{ progress }}/{{ total }}</div>
+    </div>
+
+    <div class="nav-buttons">
+      {% if current_index > 1 %}
+        <button onclick="window.location.href='{{ url_for('question', qid=current_index - 1) }}'" class="nav-button">← Previous</button>
+      {% endif %}
+
+      {% if current_index < total %}
+        <button onclick="window.location.href='{{ url_for('question', qid=current_index + 1) }}'" class="nav-button" style="float:right">Next →</button>
+      {% else %}
+        <form action="{{ url_for('thank_you') }}" method="get" id="done-form" style="float:right; display: {% if selected %}block{% else %}none{% endif %};">
+          <button type="submit">✅ Done</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    let selected = "{{ selected }}";
+    const questionId = {{ question.id }};
+    const isLastQuestion = {{ (current_index == total) | tojson }};
+
+    function selectOption(option) {
+      selected = option;
+      document.querySelectorAll('.option').forEach(div => {
+        div.classList.remove('selected');
+      });
+
+      const selectedDiv = [...document.querySelectorAll('.option')]
+                          .find(div => div.innerText.trim() === option);
+      if (selectedDiv) selectedDiv.classList.add('selected');
+
+      fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: questionId, answer: option })
+      }).then(res => res.json()).then(res => {
+        console.log("Saved:", res);
+        if (isLastQuestion) {
+          const doneForm = document.getElementById("done-form");
+          if (doneForm) {
+            doneForm.style.display = "block";
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
