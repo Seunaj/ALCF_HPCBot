@@ -84,6 +84,64 @@
     .progress-bar {
       font-weight: bold;
     }
+
+    /* Styling for navigation buttons */
+    .nav-button {
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-button:hover {
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .nav-button:active {
+      background: linear-gradient(135deg, #005f85, #005f85);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transform: translateY(0);
+    }
+
+    /* Styling the 'Done' button */
+    #done-form button {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      font-size: 16px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    #done-form button:hover {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+    }
+
+    #done-form button:active {
+      background: linear-gradient(135deg, #228b54, #228b54);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -93,6 +151,7 @@
   </div>
 
   <div class="container">
+    <h2 style="text-align: right">Welcome, {{ session["username"] }}! <a href="{{ url_for('logout') }}">Logout</a></h2>
     <h2>QA pair ({{ question.id }} of {{ total }})</h2>
     <p><b>Question: </b>{{ question.question }}</p>
     <p><b>Answer: </b>{{ question.answer }}</p>
@@ -109,7 +168,8 @@
     </div>
 
     <div class="progress">
-      <div class="progress-bar">You have completed {{ progress }}/{{ total }}</div>
+      <div class="progress-bar" style="color: red">You have completed {{ progress }}/{{ total }}</div>
+        <br>
     </div>
 
     <div class="nav-buttons">
@@ -121,11 +181,17 @@
         <button onclick="window.location.href='{{ url_for('question', qid=current_index + 1) }}'" class="nav-button" style="float:right">Next →</button>
       {% else %}
         <form action="{{ url_for('thank_you') }}" method="get" id="done-form" style="float:right; display: {% if selected %}block{% else %}none{% endif %};">
-          <button type="submit">✅ Done</button>
+          <button type="submit"> Done</button>
         </form>
       {% endif %}
     </div>
+    <br><br>
   </div>
+
+  <footer style="text-align: center; padding: 10px; font-family: 'Arial', sans-serif; font-size: 14px; color: #555; margin-top: 20px;">
+    &copy; <span id="current-year"></span> Argonne Leadership Computing Facility. All rights reserved.
+  </footer>
+
 
   <script>
     let selected = "{{ selected }}";
@@ -156,6 +222,9 @@
         }
       });
     }
+
+    // Dynamically update the footer with the current year
+    document.getElementById("current-year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
