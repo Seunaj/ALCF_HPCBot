@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Question {{ question.id }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* General styling */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    /* Banner styling */
+    .banner {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      color: #fff;
+      text-align: center;
+      padding: 20px 10px;
+    }
+
+    .banner h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    @media (max-width: 600px) {
+      .banner h1 {
+        font-size: 2rem;
+      }
+    }
+
+    /* Main container */
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 100px auto 20px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    /* Left column */
+    .left-column {
+      flex: 1;
+      max-height: 600px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      min-width: 300px;
+    }
+
+    /* Right column */
+    .right-column {
+      flex: 2;
+      min-width: 300px;
+    }
+
+    /* Options and text styling in the right column */
+    .right-column p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    #options {
+      padding: 15px;
+      background: linear-gradient(135deg, #ececec, #f7f7f7);
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #options .option {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      padding: 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      background: #fff;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #options .option:hover {
+      background: #f0f5ff;
+      border-color: #80bfff;
+    }
+
+    #options .option.selected {
+      background-color: #ddf4ff;
+      color: #0056b3;
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.75);
+    }
+
+    /* Progress bar styling */
+    .progress-bar {
+      font-weight: bold;
+    }
+
+    /* Navigation buttons */
+    .nav-button {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-button:hover {
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-button:active {
+      background: linear-gradient(135deg, #005f85, #005f85);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        padding: 15px;
+      }
+
+      .left-column,
+      .right-column {
+        flex: 1 1 100%;
+        min-width: 100%;
+      }
+
+      #options .option {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      .nav-button {
+        width: 100%;
+        padding: 12px;
+        margin: 5px 0;
+      }
+    }
+
+    /* Footer styling */
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      color: #555;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Banner -->
+  <div class="banner">
+    <h1>Evaluate ALCF QAs</h1>
+  </div>
+
+  <!-- Main container -->
+  <div class="container">
+    <!-- Left column -->
+    <div class="left-column">
+      {{ question.content | safe }}
+    </div>
+
+    <!-- Right column -->
+    <div class="right-column">
+      <h2 style="text-align: right">Welcome, {{ session["username"] }}! <a href="{{ url_for('logout') }}">Logout</a></h2>
+      <h2>QA pair ({{ question.id }} of {{ total }})</h2>
+      <p><b>Question:</b> {{ question.question }}</p>
+      <p><b>Answer:</b> {{ question.answer }}</p>
+      <p><b>Category:</b> {{ question.category }} </p>
+
+      <!-- Options -->
+      <div id="options">
+        {% for option in question.options %}
+        <div
+          class="option{% if selected == option %} selected{% endif %}"
+          onclick="selectOption('{{ option }}')">
+          {{ option }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Progress -->
+      <div class="progress">
+        <div class="progress-bar" style="color: red">You have completed {{ progress }}/{{ total }}</div>
+        <br>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-buttons">
+        {% if current_index > 1 %}
+        <button onclick="window.location.href='{{ url_for('question', qid=current_index - 1) }}'" class="nav-button">← Previous</button>
+        {% endif %}
+
+        {% if current_index < total %}
+        <button onclick="window.location.href='{{ url_for('question', qid=current_index + 1) }}'" class="nav-button" style="float:right">Next →</button>
+        {% else %}
+        <form action="{{ url_for('thank_you') }}" method="get" id="done-form" style="float:right; display: {% if selected %}block{% else %}none{% endif %};">
+          <button type="submit">Done</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    &copy; <span id="current-year"></span> Argonne Leadership Computing Facility. All rights reserved.
+  </footer>
+
+  <script>
+    let selected = "{{ selected }}";
+    const questionId = {{ question.id }};
+    const isLastQuestion = {{ (current_index == total) | tojson }};
+
+    function selectOption(option) {
+      selected = option;
+      document.querySelectorAll('.option').forEach(div => {
+        div.classList.remove('selected');
+      });
+
+      const selectedDiv = [...document.querySelectorAll('.option')]
+                          .find(div => div.innerText.trim() === option);
+      if (selectedDiv) selectedDiv.classList.add('selected');
+
+      fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: questionId, answer: option })
+      }).then(res => res.json()).then(res => {
+        console.log("Saved:", res);
+        if (isLastQuestion) {
+          const doneForm = document.getElementById("done-form");
+          if (doneForm) {
+            doneForm.style.display = "block";
+          }
+        }
+      });
+    }
+
+    // Dynamic year update
+    document.getElementById("current-year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

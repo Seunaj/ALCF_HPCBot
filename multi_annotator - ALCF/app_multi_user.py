@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import json, os, uuid
 app = Flask(__name__)
-app.secret_key = "super-secret-key"  # CHANGE this in production
+# app.secret_key = "super-secret-key"  # CHANGE this in production
 
 required_directory = os.path.dirname(os.path.abspath(__file__))
 questions_file_path = os.path.join(required_directory, "all_data.json")
