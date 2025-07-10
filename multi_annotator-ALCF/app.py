@@ -186,7 +186,6 @@ def submit():
         return jsonify({"status": "error", "message": "Invalid qa_type. Please log in again."}), 400
 
     data = request.json  # Parse incoming data
-    print("Received payload:", data)
     qid = str(data.get("id"))
     selected_option = data.get("answer")
     feedback = data.get("feedback", "").strip()  # Extract feedback or default to an empty string
