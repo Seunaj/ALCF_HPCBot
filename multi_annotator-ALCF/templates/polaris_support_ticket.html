@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Question {{ question.id }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* General styling */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    .banner {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      color: #fff;
+      text-align: center;
+      padding: 20px 10px;
+    }
+
+    .banner h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 100px auto 20px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    .left-column {
+      flex: 1;
+      max-height: 600px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      min-width: 300px;
+    }
+
+    .right-column {
+      flex: 2;
+      min-width: 300px;
+    }
+
+    .right-column p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    #options {
+      padding: 15px;
+      background: #ececec;
+      border-radius: 10px;
+    }
+
+    #options .option {
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      background: #fff;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #options .option:hover {
+      background: #f0f5ff;
+      border-color: #80bfff;
+    }
+
+    #options .option.selected {
+      background-color: #ddf4ff;
+      border-color: #007bff;
+    }
+
+    .feedback-form {
+      margin-top: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      font-size: 14px;
+      resize: none;
+    }
+
+    .progress-bar {
+      font-weight: bold;
+    }
+
+    .nav-button {
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: #00b4d8;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: #555;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Banner -->
+  <div class="banner">
+    <h1>Evaluate Polaris Support Ticket QAs</h1>
+  </div>
+
+  <!-- Main container -->
+  <div class="container">
+    <!-- Left column -->
+    <div class="left-column">
+      {{ question.content | safe }}
+    </div>
+
+    <!-- Right column -->
+    <div class="right-column">
+      <h2 style="text-align: right">Welcome, {{ session["username"] }}! <a href="{{ url_for('logout') }}">Logout</a></h2>
+      <h2>QA pair ({{ question.id }} of {{ total }})</h2>
+      <p><b>Question:</b> {{ question.question }}</p>
+      <p><b>Answer:</b> {{ question.answer }}</p>
+      <p><b>Category:</b> {{ question.category }}</p>
+
+      <!-- Options -->
+      <div id="options">
+        {% for option in question.options %}
+        <div
+          class="option{% if selected.selected_option == option %} selected{% endif %}"
+          onclick="selectOption('{{ option }}')">
+          {{ option }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Feedback form -->
+      <div class="feedback-form">
+        <label for="feedback">Additional Feedback (optional):</label>
+        <textarea id="feedback" placeholder="Write your feedback here...">{{ selected.feedback }}</textarea>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress">
+        <div class="progress-bar" style="color: red">You have completed {{ progress }}/{{ total }}</div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="nav-buttons">
+          {% if current_index > 1 %}
+          <button class="nav-button" onclick="window.location.href='{{ url_for('question', qid=current_index - 1) }}'">
+            ← Previous
+          </button>
+          {% endif %}
+
+          {% if current_index < total %}
+          <button class="nav-button" onclick="handleNext('{{ url_for('question', qid=current_index + 1) }}')" style="float:right">
+            Next →
+          </button>
+          {% else %}
+          <button class="nav-button" onclick="handleNext('{{ url_for('thank_you') }}')">
+            Done
+          </button>
+          {% endif %}
+    </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    &copy; <span id="current-year"></span> Argonne Leadership Computing Facility. All rights reserved.
+  </footer>
+
+<!-- JavaScript -->
+  <script>
+    let selected = "{{ selected }}";
+
+    function selectOption(option) {
+      selected = option;
+
+      // Remove "selected" class from all options
+      document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+
+      // Add "selected" class to the clicked option
+      const selectedElement = Array.from(document.querySelectorAll('.option'))
+                                   .find(el => el.textContent.trim() === option);
+      if (selectedElement) selectedElement.classList.add('selected');
+    }
+
+    function handleNext(redirectUrl) {
+      if (!selected) {
+        alert('Please select an option before proceeding.');
+        return;
+      }
+
+      submitFeedback(redirectUrl);
+    }
+
+    function submitFeedback(redirectUrl) {
+      const feedback = document.getElementById('feedback').value.trim();
+
+      // Prepare payload
+      const payload = {
+        id: {{ question.id }},
+        answer: selected,
+        feedback: feedback
+      };
+
+      console.log('Submitting payload:', payload);
+
+      // Submit feedback via fetch
+      fetch('/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Server response:', data);
+          // Redirect to the next question (or done page)
+          window.location.href = redirectUrl;
+        })
+        .catch(error => {
+          console.error('Error submitting feedback:', error);
+          alert('An error occurred. Please try again.');
+        });
+    }
+  </script>
+
+</body>
+</html>

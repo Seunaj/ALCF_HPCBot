@@ -147,11 +147,14 @@
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
+
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+{#            <input type="password" id="password" name="password" placeholder="Enter your password" required>#}
+            <input type="password" id="password" name="password" value="********" readonly>
 
             <label for="confirm_password">Confirm Password:</label>
-            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+{#            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>#}
+            <input type="password" id="confirm_password" name="confirm_password" value="********" readonly>
 
             {% if error %}
               <p style="color: red;">{{ error }}</p>
