@@ -23,11 +23,11 @@ QA_TYPE_CONFIG = {
         "annotations_file": os.path.join(required_directory, "alcf_user_guide_annotations.json"),
     },
     "aurora_support_ticket": {
-        "questions_file": os.path.join(required_directory, "all_aurora_tickets.json"),
+        "questions_file": os.path.join(required_directory, "top100_aurora_tickets_LLM_GRADED.json"),
         "annotations_file": os.path.join(required_directory, "aurora_annotations.json"),
     },
     "polaris_support_ticket": {
-        "questions_file": os.path.join(required_directory, "all_polaris_tickets.json"),
+        "questions_file": os.path.join(required_directory, "top100_polaris_tickets_LLM_GRADED.json"),
         "annotations_file": os.path.join(required_directory, "polaris_annotations.json"),
     },
 }
@@ -186,7 +186,6 @@ def submit():
         return jsonify({"status": "error", "message": "Invalid qa_type. Please log in again."}), 400
 
     data = request.json  # Parse incoming data
-    print("Received payload:", data)
     qid = str(data.get("id"))
     selected_option = data.get("answer")
     feedback = data.get("feedback", "").strip()  # Extract feedback or default to an empty string
