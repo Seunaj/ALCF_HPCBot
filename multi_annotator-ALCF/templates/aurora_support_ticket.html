@@ -146,7 +146,7 @@
     <div class="right-column">
       <h2 style="text-align: right">Welcome, {{ session["username"] }}! <a href="{{ url_for('logout') }}">Logout</a></h2>
         <p style="color: green; border-color: black; border-width: 2px; border-style: solid; padding: 10px">
-            <span style="text-decoration: underline">Guide:</span> You are to help evaluate the quality of the LLM-generated QA pair. The associated user support ticket is provided.
+            <span style="text-decoration: underline">Guide:</span> You are to help evaluate the quality of the LLM-generated question-and-answer (QA) pair. The associated user support ticket is provided.
         </p>
       <h2>QA pair ({{ question.id }} of {{ total }})</h2>
       <p><b>Question:</b> {{ question.question }}</p>
